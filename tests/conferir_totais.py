@@ -103,21 +103,21 @@ def main():
     g['val'] = g.rep * g.desc
     mats = g.reset_index()['NUM_LIGACAO'].nunique()
     print(f'Matrículas com duplicidade: {mats:,}')
-    print(f'Lançamentos repetidos: {int(g.rep.sum()):,} em {len(g):,} grupos')
+    print(f'Lançamentos a mais: {int(g.rep.sum()):,} em {len(g):,} descontos repetidos')
     print(f'Valor registrado em duplicidade: R$ {g.val.sum():,.2f}')
     for n in (1, 2):
         x = g[g.nivel == n]
-        print(f'  Nível {n}: {len(x):,} grupos, {int(x.rep.sum()):,} repetições, R$ {x.val.sum():,.2f}')
+        print(f'  Nível {n}: {len(x):,} descontos repetidos, {int(x.rep.sum()):,} lançamentos a mais, R$ {x.val.sum():,.2f}')
 
     al = base.groupby(['NUM_LIGACAO', 'C']).agg(nr=('REF', 'nunique'))
     al = al[al.nr > 1]
-    print(f'Alerta entre meses: {len(al):,} grupos, {al.reset_index()["NUM_LIGACAO"].nunique():,} matrículas')
+    print(f'Alerta entre meses: {len(al):,} descontos, {al.reset_index()["NUM_LIGACAO"].nunique():,} matrículas')
 
     ve = base.groupby(['NUM_LIGACAO', 'REF']).agg(nd=('C', 'nunique'))
     ve = ve[ve.nd > 1]
     print(f'A verificar: {ve.reset_index()["NUM_LIGACAO"].nunique():,} matrículas, {len(ve):,} combinações de matrícula e mês')
 
-    print('\nPor mês (nível 1 / nível 2 / total de repetições / R$):')
+    print('\nPor mês (lançamentos a mais: nível 1 / nível 2 / total / R$):')
     gm = g.reset_index().groupby(['REF', 'nivel']).agg(rep=('rep', 'sum'), val=('val', 'sum')).unstack(fill_value=0)
     for ref, r in gm.iterrows():
         r1, r2 = int(r[('rep', 1)]) if ('rep', 1) in r else 0, int(r[('rep', 2)]) if ('rep', 2) in r else 0

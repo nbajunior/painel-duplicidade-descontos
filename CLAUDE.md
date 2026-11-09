@@ -39,6 +39,15 @@ Pasta **Painel Análise de Descontos** no OneDrive, com as subpastas **Descontos
 7. **Filtros** (todos com seleção múltipla): Superintendência, Cidade (lista depende das superintendências marcadas), Zona, Usuário, Mês de referência. Local pela matrícula; mês pela referência do grupo; usuário: grupo entra inteiro se tiver algum lançamento do usuário.
 8. **Por usuário:** repetições e valor ficam com o usuário do lançamento que é repetição.
 
+## Vocabulário da interface (v1.1, pedido do usuário)
+
+- **"Grupo" não aparece na tela:** o usuário achou vago. Cada grupo de duplicidade é um **desconto repetido** (o mesmo valor de desconto lançado mais de uma vez na mesma matrícula e mês).
+- Os lançamentos que sobram (todos menos o válido) são **lançamentos a mais**; não usar "repetições".
+- Indicadores: "Lançamentos a mais" (em N descontos repetidos), "Nível 1 – descontos repetidos idênticos", "Nível 2 – descontos repetidos com total diferente" (linha de baixo: "lançados N vezes a mais"), "Alerta: mesmo desconto em meses diferentes", "Matrículas a verificar".
+- Tabela: "Vezes lançado", "Lançamentos a mais", "Valor em duplicidade (R$)"; situação "Válido (mais recente)" ou "Lançamento a mais".
+- CSV: `ID_DESCONTO_REPETIDO, NIVEL, SITUACAO (VALIDO / LANCAMENTO_A_MAIS), ORDEM_DO_LANCAMENTO, VEZES_LANCADO, VALOR_EM_DUPLICIDADE`; alerta `ID_ALERTA`, a verificar `ID_CASO`.
+- No código, os nomes internos continuam (`dups`, `g.rep`, `recRep`, `recG`).
+
 ## Arquitetura (index.html)
 
 - **Worker inline** (`<script type="text/plain" id="worker-src">`): leitor de .xlsx próprio, copiado do painel de economias (zip com zip64, `DecompressionStream`, XML em fluxo por `</row>`). `lerDescontos()` devolve typed arrays por lançamento (`emp, mat, zona, ref, dt, log, ano, usr, vav, desc, tot, pct, ok`); `dt` em ms com o horário "de parede" (UTC, sem fuso). `lerCadastro()` devolve `keys, nomes, sup, cid` só das matrículas com desconto.
@@ -53,7 +62,7 @@ Pasta **Painel Análise de Descontos** no OneDrive, com as subpastas **Descontos
 
 ## Valores de referência (arquivos reais de 09/11/2026)
 
-Base: 6.932 lançamentos, R$ 16.071.966,08, 5.304 matrículas. 378 matrículas com duplicidade; 594 lançamentos repetidos em 405 grupos; R$ 2.253.788,39. Nível 1: 311 grupos, 446 repetições, R$ 1.853.745,68. Nível 2: 94, 148, R$ 400.042,71. Alerta: 47 grupos, 46 matrículas. A verificar: 464 matrículas, 474 casos. Interior: 112 matrículas, 122 grupos (92 + 30), R$ 558.740,84, alerta 10, a verificar 130.
+Base: 6.932 lançamentos, R$ 16.071.966,08, 5.304 matrículas. 378 matrículas com duplicidade; 594 lançamentos a mais em 405 descontos repetidos; R$ 2.253.788,39. Nível 1: 311 descontos repetidos, 446 lançamentos a mais, R$ 1.853.745,68. Nível 2: 94, 148, R$ 400.042,71. Alerta: 47 descontos em meses diferentes, 46 matrículas. A verificar: 464 matrículas, 474 casos. Interior: 112 matrículas, 122 descontos repetidos (92 + 30), R$ 558.740,84, alerta 10, a verificar 130.
 
 ## Como validar uma mudança
 
